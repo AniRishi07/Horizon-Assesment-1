@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Chip } from 'react-native-paper';
+import { Card, Text, Chip, IconButton } from 'react-native-paper';
 import { Notice, NoticeCategory, NoticePriority } from '../../types';
 import { Colors } from '../../theme/colors';
 
 interface NoticeCardProps {
   notice: Notice;
+  onDelete?: (notice: Notice) => void;
 }
 
 // ---- Category badge config ----
@@ -38,7 +39,7 @@ function formatDate(iso: string): string {
 /**
  * Notice card with color-coded category and priority badges.
  */
-const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
+const NoticeCard: React.FC<NoticeCardProps> = ({ notice, onDelete }) => {
   const catCfg = CATEGORY_CONFIG[notice.category];
   const priCfg = PRIORITY_CONFIG[notice.priority];
 
@@ -60,6 +61,15 @@ const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
             {priCfg.label}
           </Chip>
           <Text style={styles.date}>{formatDate(notice.date)}</Text>
+          {onDelete && (
+            <IconButton
+              icon="delete-outline"
+              size={18}
+              iconColor={Colors.error}
+              onPress={() => onDelete(notice)}
+              style={styles.deleteIcon}
+            />
+          )}
         </View>
 
         {/* Title */}
@@ -114,6 +124,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     lineHeight: 19,
+  },
+  deleteIcon: {
+    margin: 0,
+    width: 28,
+    height: 28,
   },
 });
 

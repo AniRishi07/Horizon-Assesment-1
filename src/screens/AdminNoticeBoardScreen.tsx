@@ -18,7 +18,7 @@ import {
   SegmentedButtons,
   Portal,
 } from 'react-native-paper';
-import { fetchNotices, createNotice } from '../api/apiService';
+import { fetchNotices, createNotice, deleteNotice } from '../api/apiService';
 import { Notice, NoticeCategory, NoticePriority } from '../types';
 import NoticeCard from '../components/common/NoticeCard';
 import EmptyState from '../components/common/EmptyState';
@@ -57,6 +57,40 @@ const AdminNoticeBoardScreen: React.FC = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  const handleDeleteNotice = async (notice: Notice) => {
+    const proceed = async () => {
+      try {
+        setSubmitting(true);
+        await deleteNotice(notice.id);
+        setNotices(prev => prev.filter(n => n.id !== notice.id));
+      } catch (e) {
+        Alert.alert('Error', 'Failed to delete notice.');
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm) {
+        if (window.confirm(`Delete notice "${notice.title}"?`)) {
+          await proceed();
+        }
+      } else {
+        await proceed();
+      }
+      return;
+    }
+
+    Alert.alert(
+      'Delete Notice',
+      `Are you sure you want to delete "${notice.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: proceed },
+      ]
+    );
+  };
 
   const resetForm = () => {
     setFormTitle('');
@@ -98,7 +132,9 @@ const AdminNoticeBoardScreen: React.FC = () => {
       <FlatList
         data={notices}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => <NoticeCard notice={item} />}
+        renderItem={({ item }) => (
+          <NoticeCard notice={item} onDelete={handleDeleteNotice} />
+        )}
         ListEmptyComponent={
           <EmptyState
             icon="inbox"

@@ -111,6 +111,13 @@ export const createNotice = async (
   return simulate(newNotice);
 };
 
+export const deleteNotice = async (noticeId: string): Promise<void> => {
+  const notices = await readFromStorage<Notice>(KEYS.NOTICES, SEED_NOTICES);
+  const filtered = notices.filter(n => n.id !== noticeId);
+  await writeToStorage(KEYS.NOTICES, filtered);
+  return simulate(undefined);
+};
+
 // ---- Complaints ----
 export const fetchComplaints = (): Promise<Complaint[]> =>
   readFromStorage<Complaint>(KEYS.COMPLAINTS, SEED_COMPLAINTS).then(data =>
