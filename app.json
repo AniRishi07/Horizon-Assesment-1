@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Horizon Society Connect",
+    "slug": "horizon-society-connect",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E40AF"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.horizon.societyconnect"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E40AF"
+      },
+      "package": "com.horizon.societyconnect"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "@react-native-async-storage/async-storage",
+        {
+          "StorageMaxAgeMs": 604800000
+        }
+      ]
+    ]
+  }
+}
