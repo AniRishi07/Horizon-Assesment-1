@@ -25,14 +25,6 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    },
-    "plugins": [
-      [
-        "@react-native-async-storage/async-storage",
-        {
-          "StorageMaxAgeMs": 604800000
-        }
-      ]
-    ]
+    }
   }
 }
