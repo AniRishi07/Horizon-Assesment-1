@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView, Platform } from 'react-native';
 import { Text, Card, Button, Avatar, Divider } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { Colors } from '../theme/colors';
@@ -12,6 +12,17 @@ const ProfileScreen: React.FC = () => {
   const { user, signOut } = useAuth();
 
   const handleSignOut = () => {
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm) {
+        if (window.confirm('Are you sure you want to sign out?')) {
+          signOut();
+        }
+      } else {
+        signOut();
+      }
+      return;
+    }
+
     Alert.alert(
       'Sign Out',
       'Are you sure you want to sign out?',
