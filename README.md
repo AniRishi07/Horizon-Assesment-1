@@ -225,7 +225,7 @@ npx expo start
 
 ## Git Commit History
 
-| Commit | Message |
+| # | Message |
 |---|---|
 | 1 | `chore: initial project scaffold with architecture layers` |
 | 2 | `feat: define domain models and implement role-based auth context` |
@@ -235,4 +235,11 @@ npx expo start
 | 6 | `feat: implement admin-facing features: notice management and oversight` |
 | 7 | `ui: enhance UX with loading states, empty states, and material design polish` |
 | 8 | `docs: finalize technical documentation and architecture overview` |
+| 9 | `fix: resolve expo config plugin, fix main entry point, and enable web runtime` |
+| 10 | `fix: support browser confirmation dialog for sign out on web` |
+| 11 | `feat: enable admin to resolve and clear complaints` |
+| 12 | `feat: allow admin to delete notices from notice board` |
+| 13 | `chore: add @expo/ngrok dependency for tunnel mode` |
+| 14 | `chore: upgrade project to Expo SDK 57 to match Expo Go` |
+| 15 | `fix: resolve Android Metro bundling for Expo SDK 57` |
 
