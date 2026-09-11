@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Chip, ProgressBar } from 'react-native-paper';
+import { Card, Text, Chip, ProgressBar, Button } from 'react-native-paper';
 import { Complaint, ComplaintStatus } from '../../types';
 import { Colors } from '../../theme/colors';
 
 interface ComplaintItemProps {
   complaint: Complaint;
+  onResolve?: (complaint: Complaint) => void;
+  onDelete?: (complaint: Complaint) => void;
 }
 
 const STATUS_CONFIG: Record<
@@ -37,7 +39,11 @@ function formatDate(iso: string): string {
 /**
  * Complaint list item with status chip and progress bar.
  */
-const ComplaintItem: React.FC<ComplaintItemProps> = ({ complaint }) => {
+const ComplaintItem: React.FC<ComplaintItemProps> = ({
+  complaint,
+  onResolve,
+  onDelete,
+}) => {
   const cfg = STATUS_CONFIG[complaint.status];
 
   return (
@@ -75,6 +81,39 @@ const ComplaintItem: React.FC<ComplaintItemProps> = ({ complaint }) => {
 
         {/* Date */}
         <Text style={styles.date}>Raised on {formatDate(complaint.createdAt)}</Text>
+
+        {/* Actions (Admin) */}
+        {(onResolve || onDelete) && (
+          <View style={styles.actionsRow}>
+            {onResolve && complaint.status === 'PENDING' && (
+              <Button
+                mode="contained"
+                buttonColor={Colors.resolved}
+                textColor="#FFFFFF"
+                icon="check-circle-outline"
+                compact
+                onPress={() => onResolve(complaint)}
+                style={styles.actionBtn}
+                labelStyle={styles.btnLabel}
+              >
+                Mark as Fixed
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                mode="outlined"
+                textColor={Colors.error}
+                icon="delete-outline"
+                compact
+                onPress={() => onDelete(complaint)}
+                style={[styles.actionBtn, styles.deleteBtn]}
+                labelStyle={styles.btnLabel}
+              >
+                Clear
+              </Button>
+            )}
+          </View>
+        )}
       </Card.Content>
     </Card>
   );
@@ -132,6 +171,26 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.textDisabled,
     marginTop: 4,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  actionBtn: {
+    borderRadius: 8,
+  },
+  deleteBtn: {
+    borderColor: Colors.border,
+  },
+  btnLabel: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 

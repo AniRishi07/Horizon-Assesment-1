@@ -4,9 +4,15 @@ import {
   FlatList,
   StyleSheet,
   RefreshControl,
+  Platform,
+  Alert,
 } from 'react-native';
 import { Text } from 'react-native-paper';
-import { fetchComplaints } from '../api/apiService';
+import {
+  fetchComplaints,
+  updateComplaintStatus,
+  deleteComplaint,
+} from '../api/apiService';
 import { Complaint } from '../types';
 import ComplaintItem from '../components/common/ComplaintItem';
 import EmptyState from '../components/common/EmptyState';
@@ -20,6 +26,7 @@ const AdminComplaintsScreen: React.FC = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   const load = useCallback(async (refresh = false) => {
     try {
@@ -35,6 +42,76 @@ const AdminComplaintsScreen: React.FC = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  const handleResolve = async (complaint: Complaint) => {
+    const proceed = async () => {
+      try {
+        setUpdating(true);
+        const updated = await updateComplaintStatus(complaint.id, 'RESOLVED');
+        setComplaints(prev =>
+          prev.map(c => (c.id === complaint.id ? updated : c))
+        );
+      } catch (e) {
+        Alert.alert('Error', 'Failed to update complaint.');
+      } finally {
+        setUpdating(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm) {
+        if (window.confirm(`Mark "${complaint.title}" as Resolved?`)) {
+          await proceed();
+        }
+      } else {
+        await proceed();
+      }
+      return;
+    }
+
+    Alert.alert(
+      'Resolve Complaint',
+      `Mark "${complaint.title}" as Resolved?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Resolve', onPress: proceed },
+      ]
+    );
+  };
+
+  const handleDelete = async (complaint: Complaint) => {
+    const proceed = async () => {
+      try {
+        setUpdating(true);
+        await deleteComplaint(complaint.id);
+        setComplaints(prev => prev.filter(c => c.id !== complaint.id));
+      } catch (e) {
+        Alert.alert('Error', 'Failed to remove complaint.');
+      } finally {
+        setUpdating(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm) {
+        if (window.confirm(`Clear complaint "${complaint.title}"?`)) {
+          await proceed();
+        }
+      } else {
+        await proceed();
+      }
+      return;
+    }
+
+    Alert.alert(
+      'Clear Complaint',
+      `Are you sure you want to clear "${complaint.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Clear', style: 'destructive', onPress: proceed },
+      ]
+    );
+  };
+
   if (isLoading) {
     return <LoadingOverlay visible message="Loading all complaints..." />;
   }
@@ -44,6 +121,8 @@ const AdminComplaintsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <LoadingOverlay visible={updating} message="Updating complaint..." />
+
       {/* Stats banner */}
       <View style={styles.statsBanner}>
         <View style={styles.stat}>
@@ -65,7 +144,13 @@ const AdminComplaintsScreen: React.FC = () => {
       <FlatList
         data={complaints}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => <ComplaintItem complaint={item} />}
+        renderItem={({ item }) => (
+          <ComplaintItem
+            complaint={item}
+            onResolve={handleResolve}
+            onDelete={handleDelete}
+          />
+        )}
         ListEmptyComponent={
           <EmptyState
             icon="file-x"

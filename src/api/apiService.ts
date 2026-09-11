@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Notice, Complaint, Visitor } from '../types';
+import { Notice, Complaint, Visitor, ComplaintStatus } from '../types';
 
 // ================================================================
 // Horizon Society Connect — Mock API Service (Repository Pattern)
@@ -139,6 +139,33 @@ export const createComplaint = async (
   complaints.unshift(newComplaint);
   await writeToStorage(KEYS.COMPLAINTS, complaints);
   return simulate(newComplaint);
+};
+
+export const updateComplaintStatus = async (
+  complaintId: string,
+  status: ComplaintStatus
+): Promise<Complaint> => {
+  const complaints = await readFromStorage<Complaint>(
+    KEYS.COMPLAINTS,
+    SEED_COMPLAINTS
+  );
+  const index = complaints.findIndex(c => c.id === complaintId);
+  if (index === -1) {
+    throw new Error('Complaint not found');
+  }
+  complaints[index] = { ...complaints[index], status };
+  await writeToStorage(KEYS.COMPLAINTS, complaints);
+  return simulate(complaints[index]);
+};
+
+export const deleteComplaint = async (complaintId: string): Promise<void> => {
+  const complaints = await readFromStorage<Complaint>(
+    KEYS.COMPLAINTS,
+    SEED_COMPLAINTS
+  );
+  const filtered = complaints.filter(c => c.id !== complaintId);
+  await writeToStorage(KEYS.COMPLAINTS, filtered);
+  return simulate(undefined);
 };
 
 // ---- Visitors ----
